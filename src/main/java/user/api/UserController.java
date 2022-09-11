@@ -46,6 +46,11 @@ public class UserController implements CrudHandler {
         handleOptionalResponse(ctx, user);
     }
 
+    public void findByBirthYear(Context ctx, Integer birthYear) {
+        Optional<User> user = users.findByBirthYear(birthYear);
+        handleOptionalResponse(ctx, user);
+    }
+
     private void handleOptionalResponse(Context ctx, Optional<User> user) {
         user.map(ctx::json)
                 .orElse(ctx.status(404));
@@ -57,5 +62,6 @@ public class UserController implements CrudHandler {
         users.update(Integer.valueOf(id), user);
         ctx.status(204);
     }
+
 
 }

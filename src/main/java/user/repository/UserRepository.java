@@ -15,10 +15,10 @@ public class UserRepository {
     private AtomicInteger lastId;
 
     static {
-        users.put(1, new User(1, "Bruno", "bruno@bruno.com"));
-        users.put(2, new User(2, "John", "john@doe.com"));
-        users.put(3, new User(3, "Steve", "steve@jobs.com"));
-        users.put(4, new User(4, "Bill", "bill@gates.com"));
+        users.put(1, new User(1, "Bruno", "bruno@bruno.com", 1990));
+        users.put(2, new User(2, "John", "john@doe.com", 1975));
+        users.put(3, new User(3, "Steve", "steve@jobs.com", 2001));
+        users.put(4, new User(4, "Bill", "bill@gates.com", 1999));
     }
 
     public UserRepository() {
@@ -27,7 +27,7 @@ public class UserRepository {
 
     public User save(User user) {
         var id = lastId.incrementAndGet();
-        users.put(id, new User(id, user.getName(), user.getEmail()));
+        users.put(id, new User(id, user.getName(), user.getEmail(), user.getBirthYear()));
         return users.get(id);
     }
 
@@ -45,12 +45,19 @@ public class UserRepository {
                 .findFirst();
     }
 
+    public Optional<User> findByBirthYear(Integer birthYear) {
+        return users.values().stream()
+                .filter(user -> birthYear.equals(user.getBirthYear()))
+                .findFirst();
+    }
+
     public void update(Integer id, User user) {
-        users.put(id, new User(id, user.getName(), user.getEmail()));
+        users.put(id, new User(id, user.getName(), user.getEmail(), user.getBirthYear()));
     }
 
     public void delete(Integer id) {
         users.remove(id);
     }
+
 
 }
