@@ -17,12 +17,10 @@ public class App {
 
             crud("/users/{user-id}", usersHandler);
 
-            get("/users/email/{email}", ctx -> {
-                usersHandler.findByEmail(ctx, ctx.pathParam("email"));
-            });
-            get("/users/birthYear/{birthYear}", ctx -> {
-                usersHandler.findByBirthYear(ctx, Integer.valueOf(ctx.pathParam("birthYear")));
-            });
+            get("/users/email/{email}", ctx ->
+                    usersHandler.findByEmail(ctx, ctx.pathParam("email")));
+            get("/users/birthYear/{birthYear}", ctx ->
+                    usersHandler.findByBirthYear(ctx, Integer.valueOf(ctx.pathParam("birthYear"))));
         });
 
         app.get("/", ctx -> ctx.result("Hello World"));
