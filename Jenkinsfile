@@ -1,6 +1,10 @@
 pipeline {
 
     agent any
+    // check repo for changes
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
     stages {
         stage('checkout from GitLab') {
             steps {
@@ -13,6 +17,7 @@ pipeline {
             steps {
                 script {
                     def scannerHome = tool 'sonar-scanner';
+
 
                 }
             }
