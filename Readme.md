@@ -26,9 +26,17 @@ Die Applikation kann lokal gestartet werden. Dazu muss das Projekt lokal ausgech
 ```bash
 ./gradlew run
 ```
-Die Applikation ist dann unter http://localhost:7000 erreichbar. Die Rest API ist unter http://localhost:7000/api/users erreichbar. Die Swagger UI ist unter http://localhost:7000/swagger-ui/ erreichbar.
+Die Applikation ist dann unter http://localhost:7000 erreichbar. Die Rest API ist unter http://localhost:7000/api/users erreichbar. 
+
+## Docker
+Die Applikation kann auch als lokaler Docker Container gestartet werden. Dazu muss das Projekt lokal ausgecheckt werden und im Terminal folgender Befehl ausgeführt werden:
+```bash
+./gradlew jibDockerBuild
+```
+
 ## Dokumentation
 Die Dokumentation zur Semesterarbeit wird im Ordner `/Documentation` versioniert.
 - [Aufgabe 1](./Documentation/Aufgabe_1.md)
+- [Aufgabe 2](./Documentation/Aufgabe_2.md)
 
 

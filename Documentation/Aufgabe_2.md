@@ -87,7 +87,12 @@ baut schliesslich das Image und pusht es auf die Google Container Registry. Dort
 Das Deployment der App wird auf Google Cloud Run durchgeführt. Dies wurde nach dem 
 erfolgreichen Push des Docker Images zunächst manuell mittels der Google Cloud CLI ausgeführt:
 ```bash
-gcloud run deploy devops --image gcr.io/cellular-syntax-231507/devops --platform managed --region europe-west4 --allow-unauthenticated --port 7000
+gcloud run deploy devops \
+  --image gcr.io/cellular-syntax-231507/devops \
+  --platform managed \
+  --region europe-west4 \
+  --allow-unauthenticated \
+  --port 7000
 ```
 Dies führt aber zu einem Fehler auf Google Cloud Run (`The user-provided container failed to start and listen on the port defined provided by the PORT=7000 environment variable`).
 Daher wurde der Container zunächst lokal gestartet:
@@ -144,7 +149,7 @@ pipeline {
 ```
 Die Ausgabe:
 
-![](/img/jenkins_1.png)
+![](./Documentation/img/jenkins_1.png)
 
 Als nächstes muss ein Service Account für Google Cloud Run erstellt werden. Dazu wird über IAM & Admin -> Service Accounts -> Create Service Account ein neuer Service Account erstellt. Der Service Account wird `jenkins-gcloud` genannt. Der Service Account Key wird anschliessend als JSON Key heruntergeladen und im Jenkins Container als Secret hinterlegt. Dazu wird über Credentials -> System -> Global credentials (unrestricted) -> Add Credentials ein neues Secret vom Typ `Secret File` mit Hilfe des JSON Key erstellt. In der Pipeline muss die GCP Projekt-ID `cellular-syntax-231507` mittels Variable `CLOUDSDK_CORE_PROJECT` und das zu verwendende Secret gesetzt werden. Die Pipeline zum Testen der Credentials sieht wie folgt aus (listet die verfügbaren Zonen auf, dazu muss eine entsprechende Berechtigung vorhanden sein):
 ```groovy
@@ -175,11 +180,10 @@ Nach erfolgreicher Konfiguration von Jenkins wird die Pipeline aufgesetzt. Die P
 - Der Build soll bei jedem Push auf den Develop-Branch ausgelöst werden
 - Der Build soll das Docker Image bauen und in die Google Container Registry pushen
 - Der Build soll das Docker Image auf Google Cloud Run deployen
-
-
+Das dazu erforderliche Jenkinsfile wird im Root-Verzeichnis des Repositories erstellt und in Jenkins mittels `Pipeline script from SCM` ausgewählt. Als SCM wird das Git Repository `[https://git.ffhs.ch/matthias.heimberg/devops](https://git.ffhs.ch/matthias.heimberg/devops)` ausgewählt. 
 
 ## Probleme und deren Lösung
 - Docker Image aus Build der Applikation erstellen (Dependencies) -> Lösung: Image mittels `Jib` erstellen.
 - Docker Image auf Google Container Registry pushen -> Lösung: `docker-credential-gcr` installieren und Login mittels `docker-credential-gcr gcr-login` durchführen.
 - Google Cloud Run führt das Image wegen Port 7000 nicht aus -> Lösung: Port 7000 freigeben.
-- Docker lässt kein Mounten von relativen Pfaden zu -> Lösung: Docker-Compose verwenden.
+- Docker lässt kein Mounten von relativen Pfaden zu -> Lösung: Docker-Compose verwenden, diese Lösung vereinfacht gleichzeitig das Starten von Jenkins.
