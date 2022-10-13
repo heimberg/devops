@@ -3,8 +3,8 @@ pipeline {
     agent any
     stages {
         stage('checkout from GitLab') {
-            with credentials([usernamePassword(credentialsId: 'gitlab access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
-                steps {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'gitlab access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
                     git url: 'https://git.ffhs.ch/matthias.heimberg/devops.git', branch: 'develop', credentialsId: 'gitlab'
                 }
             }
