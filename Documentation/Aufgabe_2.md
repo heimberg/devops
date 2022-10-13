@@ -186,8 +186,8 @@ Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLa
 
 ![](./Documentation/img/jenkins_2.png)
 
-GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  
-```groovy
+GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  Die Pipeline wird daher mittels Polling realisiert. Dazu wird in Jenkins der Polling-Trigger mit einer Frequenz von 5 Minuten konfiguriert.
+
 
 
 
