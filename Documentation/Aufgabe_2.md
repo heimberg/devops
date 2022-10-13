@@ -180,7 +180,16 @@ Nach erfolgreicher Konfiguration von Jenkins wird die Pipeline aufgesetzt. Die P
 - Der Build soll bei jedem Push auf den Develop-Branch ausgelöst werden
 - Der Build soll das Docker Image bauen und in die Google Container Registry pushen
 - Der Build soll das Docker Image auf Google Cloud Run deployen
-Das dazu erforderliche Jenkinsfile wird im Root-Verzeichnis des Repositories erstellt und in Jenkins mittels `Pipeline script from SCM` ausgewählt. Als SCM wird das Git Repository `[https://git.ffhs.ch/matthias.heimberg/devops](https://git.ffhs.ch/matthias.heimberg/devops)` ausgewählt. 
+Das dazu erforderliche Jenkinsfile wird im Root-Verzeichnis des Repositories (Branch `develop`) erstellt und in Jenkins (Multibranch pipeline) vom Git Repository [https://git.ffhs.ch/matthias.heimberg/devops](https://git.ffhs.ch/matthias.heimberg/devops) eingebunden. Die für die Verbindung zu GitLab erforderlichen Credentials werden in Jenkins hinterlegt ([https://docs.gitlab.com/ee/integration/jenkins.html](https://docs.gitlab.com/ee/integration/jenkins.html)).
+
+Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLab Plugin installiert, welches die GitLab API verwendet. Das dafür erforderliche Access Token wird in Jenkins hinterlegt:
+
+![](./Documentation/img/jenkins_2.png)
+
+GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  
+```groovy
+
+
 
 ## Probleme und deren Lösung
 - Docker Image aus Build der Applikation erstellen (Dependencies) -> Lösung: Image mittels `Jib` erstellen.
