@@ -10,6 +10,11 @@ import user.User;
 
 public class UserRepository {
 
+    // implement database access here (mongo)
+    // connect to database
+
+
+
     private static final Map<Integer, User> users = new ConcurrentHashMap<>();
 
     private AtomicInteger lastId;
@@ -51,8 +56,9 @@ public class UserRepository {
                 .findFirst();
     }
 
-    public void update(Integer id, User user) {
+    public User update(Integer id, User user) {
         users.put(id, new User(id, user.getName(), user.getEmail(), user.getBirthYear()));
+        return users.get(id);
     }
 
     public void delete(Integer id) {

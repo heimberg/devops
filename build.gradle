@@ -1,9 +1,18 @@
 plugins {
     id 'java'
+    id "org.sonarqube" version "3.4.0.2513"
+    id 'application'
+    id 'com.google.cloud.tools.jib' version '3.3.0'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+jar {
+    manifest {
+        attributes 'Main-Class': 'app.App'
+    }
+}
+
+group 'ch.ffhs'
+version '1.0.0'
 
 repositories {
     mavenCentral()
@@ -12,20 +21,47 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
-    implementation 'io.javalin:javalin:4.6.4'
+    // swagger
+    implementation 'io.swagger:swagger-project:2.0.0-rc2'
+
+    // javalin
+    implementation 'io.javalin:javalin:5.0.1'
+    implementation 'io.javalin:javalin-bundle:5.0.1'
+
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    implementation 'org.slf4j:slf4j-simple:2.0.0'
-    implementation 'org.slf4j:slf4j-api:2.0.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.3'
+    implementation 'org.slf4j:slf4j-api:2.0.3'
 
     // jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+    implementation 'com.google.guava:guava:31.1-jre'
 }
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClassName = 'app.App'
+}
+
+jib {
+    from {
+        image = 'openjdk:17-alpine'
+    }
+    to { image = 'gcr.io/cellular-syntax-231507/devops'
+        tags = [version, 'latest']
+        credHelper = 'gcloud'
+
+    }
+    container {
+        mainClass = 'app.App'
+        ports = ['7000']
+    }
+
 }

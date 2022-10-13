@@ -1,29 +1,50 @@
 package app;
 
 import io.javalin.Javalin;
-import user.api.UserController;
+import user.User;
 import user.repository.UserRepository;
-
-import static io.javalin.apibuilder.ApiBuilder.crud;
-import static io.javalin.apibuilder.ApiBuilder.get;
 
 public class App {
     public static void main(String[] args) {
         var users = new UserRepository();
 
         Javalin app = Javalin.create().start(7000);
-        app.routes(() -> {
-            UserController usersHandler = new UserController(users);
-
-            crud("/users/{user-id}", usersHandler);
-
-            get("/users/email/{email}", ctx ->
-                    usersHandler.findByEmail(ctx, ctx.pathParam("email")));
-            get("/users/birthYear/{birthYear}", ctx ->
-                    usersHandler.findByBirthYear(ctx, Integer.valueOf(ctx.pathParam("birthYear"))));
+        app.get("/", (ctx) -> {
+            System.out.println("Root Endpoint is requested");
+            ctx.result("Root Endpoint is requested");
         });
 
-        app.get("/", ctx -> ctx.result("Hello World"));
+        app.get("api/users", ctx -> {
+            ctx.json(users.findAll());
+        });
+
+        app.get("api/users/{id}", ctx -> {
+            var id = Integer.valueOf(ctx.pathParam("id"));
+            var user = users.findById(id);
+            user.map(ctx::json)
+                    .orElse(ctx.status(404));
+        });
+
+        app.delete("api/users/{id}", ctx -> {
+            var id = Integer.valueOf(ctx.pathParam("id"));
+            users.delete(id);
+            ctx.status(204);
+        });
+
+        app.post("api/users", ctx -> {
+            var user = ctx.bodyAsClass(User.class);
+            var newUser = users.save(user);
+            ctx.json(newUser);
+            ctx.status(201);
+        });
+
+        app.put("api/users/{id}", ctx -> {
+            var id = Integer.valueOf(ctx.pathParam("id"));
+            var user = ctx.bodyAsClass(User.class);
+            var updatedUser = users.update(id, user);
+            ctx.json(users.update(id, user));
+            ctx.json(updatedUser);
+        });
     }
 
 }

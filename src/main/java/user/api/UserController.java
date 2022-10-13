@@ -62,6 +62,4 @@ public class UserController implements CrudHandler {
         users.update(Integer.valueOf(id), user);
         ctx.status(204);
     }
-
-
 }
