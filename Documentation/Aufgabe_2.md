@@ -122,9 +122,60 @@ Das Passwort für den Admin User kann bei laufendem Container mittels
 ```bash
 docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
 ```
-ausgelesen werden. Danach wird die Installation mit den default Plugins abgeschlossen. 
+ausgelesen werden. Danach wird die Installation mit den default Plugins und dem User `matthias` abgeschlossen. 
 
 ### Konfiguration von Jenkins
+Zunächst wird die Authentifizierung an Google Cloud Platform konfiguriert. Dazu muss zunächst die Google Cloud CLI im Jenkins Container gemäss der Anleitung von [https://cloud.google.com/sdk/docs/install#deb](https://cloud.google.com/sdk/docs/install#deb) installiert werden. Dies muss mittels Bash im Container durchgeführt werden, dazu muss die Shell als root gestartet werden:
+```bash
+docker exec -it jenkins /bin/bash
+```
+Mittels der folgenden kleinen Pipeline wird geprüft, ob die Google Cloud CLI korrekt installiert wurde:
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'gcloud version'
+            }
+        }
+    }
+}
+```
+Die Ausgabe:
+
+![](/img/jenkins_1.png)
+
+Als nächstes muss ein Service Account für Google Cloud Run erstellt werden. Dazu wird über IAM & Admin -> Service Accounts -> Create Service Account ein neuer Service Account erstellt. Der Service Account wird `jenkins-gcloud` genannt. Der Service Account Key wird anschliessend als JSON Key heruntergeladen und im Jenkins Container als Secret hinterlegt. Dazu wird über Credentials -> System -> Global credentials (unrestricted) -> Add Credentials ein neues Secret vom Typ `Secret File` mit Hilfe des JSON Key erstellt. In der Pipeline muss die GCP Projekt-ID `cellular-syntax-231507` mittels Variable `CLOUDSDK_CORE_PROJECT` und das zu verwendende Secret gesetzt werden. Die Pipeline zum Testen der Credentials sieht wie folgt aus (listet die verfügbaren Zonen auf, dazu muss eine entsprechende Berechtigung vorhanden sein):
+```groovy
+pipeline {
+  agent any
+  environment {
+    CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
+  }
+  stages {
+    stage('test') {
+      steps {
+        withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
+          sh '''
+            gcloud version
+            gcloud auth activate-service-account --key-file="$GCLOUD"
+            gcloud compute zones list
+          '''
+        }
+      }
+    }
+  }
+}
+```
+Der Test zeigte, dass die Google Compute Engine API nicht aktiviert ist. Nach Aktivierung der API funktioniert der Test erfolgreich. 
+
+### Jenkins Pipeline
+Nach erfolgreicher Konfiguration von Jenkins wird die Pipeline aufgesetzt. Die Pipeline soll die folgenden Punkte erfüllen:
+- Der Build soll bei jedem Push auf den Develop-Branch ausgelöst werden
+- Der Build soll das Docker Image bauen und in die Google Container Registry pushen
+- Der Build soll das Docker Image auf Google Cloud Run deployen
+
 
 
 ## Probleme und deren Lösung
