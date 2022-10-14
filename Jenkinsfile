@@ -29,14 +29,14 @@ pipeline {
                 sh './gradlew build'
             }
         }
-
-
         stage('create docker image and push to registry') {
-            withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
-                sh '''
-                    gcloud auth activate-service-account --key-file="$GCLOUD"
-                    sh './gradlew jib'
-                '''
+            steps {
+                withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
+                    sh '''
+                        gcloud auth activate-service-account --key-file="$GCLOUD"
+                        sh './gradlew jib'
+                    '''
+                }
             }
         }
         // deploy to google cloud run on port 7000
