@@ -5,6 +5,9 @@ pipeline {
     triggers {
         pollSCM('H/5 * * * *')
     }
+    environment {
+    CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
+    } 
     stages {
         stage('checkout from GitLab') {
             steps {
@@ -29,8 +32,11 @@ pipeline {
 
 
         stage('create docker image and push to registry') {
-            steps {
-                sh './gradlew jib'
+            withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
+                sh '''
+                    gcloud auth activate-service-account --key-file="$GCLOUD"
+                    sh './gradlew jib'
+                '''
             }
         }
         stage('DeployLocal') {
