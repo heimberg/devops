@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     sh 'chmod +x ./gradlew'
-                    sh './gradlew sonarqube -D"sonar.projectKey=DevOps" -D"sonar.host.url=http://localhost:9000" -D"sonar.login=sqp_0039844027f6076f4dffd4459d8973f013c68079"'
+                    sh './gradlew sonarqube -D"sonar.projectKey=DevOps" -D"sonar.host.url=sonarqube:9000" -D"sonar.login=sqp_0039844027f6076f4dffd4459d8973f013c68079"'
                 }
             }
         }
