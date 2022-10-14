@@ -188,7 +188,7 @@ Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLa
 
 GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  Die Pipeline wird daher mittels Polling realisiert. Dazu wird in Jenkins der Polling-Trigger mit einer Frequenz von 5 Minuten konfiguriert.
 
-Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden.
+Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden. 
 
 
 
