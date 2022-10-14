@@ -188,6 +188,7 @@ Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLa
 
 GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  Die Pipeline wird daher mittels Polling realisiert. Dazu wird in Jenkins der Polling-Trigger mit einer Frequenz von 5 Minuten konfiguriert.
 
+Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden.
 
 
 
@@ -197,3 +198,4 @@ GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein n
 - Google Cloud Run führt das Image wegen Port 7000 nicht aus -> Lösung: Port 7000 freigeben.
 - Docker lässt kein Mounten von relativen Pfaden zu -> Lösung: Docker-Compose verwenden, diese Lösung vereinfacht gleichzeitig das Starten von Jenkins.
 - Permission denied beim Ausführen von `gradlew` -> Lösung: `gradlew` mittels `chmod +x gradlew` ausführbar machen.
+- Sonarqube kann nicht erreicht werden -> Lösung: Hostname wird in `docker-compose.yml` auf `sonarqube` gesetzt, damit die Container sich gegenseitig finden.
