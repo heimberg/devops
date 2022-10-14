@@ -16,6 +16,7 @@ pipeline {
         stage('check code quality') {
             steps {
                 script {
+                    sh 'chmod +x gradlew'
                     sh './gradlew sonarqube -D"sonar.projectKey=DevOps" -D"sonar.host.url=http://localhost:9000" -D"sonar.login=sqp_dcb4582512ce4565cbc572871de81ecaa8f9e5fd"'
                 }
             }
