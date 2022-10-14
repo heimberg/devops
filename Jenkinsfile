@@ -42,9 +42,9 @@ pipeline {
         // deploy to google cloud run on port 7000
         stage('Deploy') {
             steps {
-                withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
+                withCredentials([file(credentialsId: 'gcloud-compute', variable: 'GCLOUD-COMPUTE')]) {
                     sh '''
-                        gcloud auth activate-service-account --key-file="$GCLOUD"
+                        gcloud auth activate-service-account --key-file="$GCLOUD-COMPUTE"
                         gcloud run deploy devops --image gcr.io/cellular-syntax-231507/devops --platform managed --region europe-west4 --allow-unauthenticated --port 7000
                     '''
                 }
