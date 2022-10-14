@@ -39,15 +39,6 @@ pipeline {
                 '''
             }
         }
-        stage('DeployLocal') {
-            // only with flag -DdeployLocal=true
-            when {
-                expression { return params.deployLocal }
-            }
-            steps {
-                sh 'docker run -p 7000:7000 heimberg/devops:latest'
-            }
-        }
         // deploy to google cloud run on port 7000
         stage('Deploy') {
             steps {
