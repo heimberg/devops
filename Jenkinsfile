@@ -23,6 +23,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+                sh 'chmod +x ./gradlew'
                 sh './gradle build'
             }
         }
@@ -30,6 +31,7 @@ pipeline {
 
         stage('create docker image and push to registry') {
             steps {
+                sh 'chmod +x ./gradlew'
                 sh './gradlew jib'
             }
         }
