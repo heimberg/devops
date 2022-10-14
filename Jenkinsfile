@@ -34,7 +34,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
                     sh '''
                         gcloud auth activate-service-account --key-file="$GCLOUD"
-                        sh './gradlew jib'
+                        ./gradlew jib
                     '''
                 }
             }
