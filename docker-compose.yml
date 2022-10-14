@@ -9,3 +9,15 @@ services:
       volumes:
           - ./jenkins-data:/var/jenkins_home
       restart: always
+
+  sonarqube:
+      image: sonarqube:latest
+      container_name: sonarqube
+      ports:
+          - "9000:9000"
+      volumes:
+          - ./sonarqube-data:/opt/sonarqube/data
+          - ./sonarqube-extensions:/opt/sonarqube/extensions
+          - ./sonarqube-logs:/opt/sonarqube/logs
+          - ./sonarqube-temp:/opt/sonarqube/temp
+      restart: always
