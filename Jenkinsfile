@@ -18,10 +18,15 @@ pipeline {
         }
         stage('check code quality') {
             steps {
-                script {
+                withSonarQubeEnv('SonarQube') {
                     sh 'chmod +x ./gradlew'
-                    sh './gradlew sonarqube -D"sonar.projectKey=DevOps" -D"sonar.host.url=http://sonarqube:9000" -D"sonar.login=sqp_0039844027f6076f4dffd4459d8973f013c68079"'
+                    sh './gradlew sonarqube'
                 }
+            }
+        }
+        stage('quality gate') {
+            steps {
+                waitForQualityGate abortPipeline: true
             }
         }
         stage('Build') {
