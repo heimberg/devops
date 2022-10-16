@@ -8,6 +8,7 @@ pipeline {
 
     options {
         gitLabConnection('GitLab DevOps')
+        gitlabCommitStatus(name: 'Jenkins')
     }
 
     stages {
@@ -62,10 +63,10 @@ pipeline {
 
     post {
         failure {
-            updateGitLabCommitStatus name: 'build', state: 'failed'
+            updateGitLabCommitStatus name: 'Jenkins', state: 'failed'
         }
         success {
-            updateGitLabCommitStatus name: 'build', state: 'success'
+            updateGitLabCommitStatus name: 'Jenkins', state: 'success'
         }
         always {
             emailext (
