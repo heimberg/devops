@@ -5,6 +5,11 @@ pipeline {
     environment {
     CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
     } 
+
+    option {
+        gitlabConnection('GitLab DevOps')
+    }
+
     stages {
         stage('checkout from GitLab') {
             steps {
@@ -56,6 +61,12 @@ pipeline {
     }
 
     post {
+        failure {
+            updateGitLabCommitStatus name: 'build', state: 'failed'
+        }
+        success {
+            updateGitLabCommitStatus name: 'build', state: 'success'
+        }
         always {
             emailext (
                 subject: 'Jenkins build: $BUILD_STATUS',
@@ -65,12 +76,6 @@ pipeline {
             )
             // archive the artifacts
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
-        }
-        failure {
-            updateGitLabCommitStatus name: 'Jenkins', state: 'FAILURE', context: 'Jenkins', description: 'Jenkins build failed'
-        }
-        success {
-            updateGitLabCommitStatus name: 'Jenkins', state: 'SUCCESS', context: 'Jenkins', description: 'Jenkins build succeeded'
         }
     }
 }

@@ -260,7 +260,7 @@ steps {
                 }
             }
 ```
-Der dazu notwendige Service Account besitzt die Berechtigung, Docker Images auf Google Cloud Run zu deployen. Die Verwendung des Service Accounts muss im Befehl `gcloud run deploy` explizit angegeben werden, ansonsten wird der Default Service Account verwendet, welcher nicht die nötigen Berechtigungen hat. 
+Der dazu notwendige Service Account besitzt die Berechtigung, Docker Images auf Google Cloud Run zu deployen. Die Verwendung des Service Accounts muss im Befehl `gcloud run deploy` explizit angegeben werden, ansonsten wird der Default Service Account verwendet, welcher nicht die nötigen Berechtigungen hat. Die App ist nach erfolgreichem Deployment unter [https://devops-d4bqj7s2iq-ez.a.run.app](https://devops-d4bqj7s2iq-ez.a.run.app) erreichbar.
 
 #### Post Actions
 Nach den Stages werden die Post Actions ausgeführt. 
