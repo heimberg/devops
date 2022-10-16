@@ -69,6 +69,8 @@ pipeline {
             updateGitLabCommitStatus name: 'Jenkins', state: 'failed'
         }
         success {
+            // archive the artifacts
+            archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
             updateGitLabCommitStatus name: 'Jenkins', state: 'success'
         }
         always {
@@ -78,8 +80,7 @@ pipeline {
                 from: 'jenkins',
                 to: 'matthias.heimberg@students.ffhs.ch'
             )
-            // archive the artifacts
-            archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
+            
         }
     }
 }
