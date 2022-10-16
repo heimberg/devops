@@ -6,9 +6,7 @@ pipeline {
     CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
     } 
 
-    options {
-        gitlabConnection('GitLab DevOps')
-    }
+    properties([gitLabConnection('GitLab DevOps')])
 
     stages {
         stage('checkout from GitLab') {
