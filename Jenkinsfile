@@ -6,7 +6,7 @@ pipeline {
     CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
     } 
 
-    option {
+    options {
         gitlabConnection('GitLab DevOps')
     }
 
