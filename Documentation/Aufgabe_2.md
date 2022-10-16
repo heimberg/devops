@@ -186,8 +186,9 @@ Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLa
 
 ![](./Documentation/img/jenkins_2.png)
 
-GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  Die Pipeline wird daher mittels Polling realisiert. Dazu wird in Jenkins der Polling-Trigger mit einer Frequenz von 5 Minuten konfiguriert.
+GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  
 
+#### Build Stage
 Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden. 
 
 Als nächstes wurde die Stage `check code quality`konfiguriert. Voraussetzung ist die Installation des SonaQube Scanner Plugins in Jenkins. In der SonarQube WebUI wird ein Webhook für Jenkins erstellt. Die URL lautet `http://jenkins:8080/sonarqube-webhook/`. Damit kann Jenkins die Ergebnisse von SonarQube abrufen, was in der Stage `quality gate` realisiert wird. Diese bricht die Pipeline ab, wenn die Qualität des Codes nicht den Anforderungen gemäss Quality Gate in Sonarqube entspricht. 
