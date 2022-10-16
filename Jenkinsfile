@@ -60,7 +60,7 @@ pipeline {
             emailext (
                 subject: 'Jenkins build: $BUILD_STATUS',
                 body: '$BUILD_URL',
-                from: 'jenkins'
+                from: 'jenkins',
                 to: 'matthias.heimberg@students.ffhs.ch'
             )
             // archive the artifacts
