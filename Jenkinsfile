@@ -26,7 +26,7 @@ pipeline {
                 waitForQualityGate abortPipeline: true
             }
         }
-        stage('Build') {
+        stage('build') {
             steps {
                 sh './gradlew build'
             }
@@ -42,7 +42,7 @@ pipeline {
             }
         }
         // deploy to google cloud run on port 7000
-        stage('Deploy') {
+        stage('deploy to cloud run') {
             steps {
                 withCredentials([file(credentialsId: 'gcloudcompute', variable: 'GCLOUDCOMPUTE')]) {
                     sh '''
@@ -64,6 +64,12 @@ pipeline {
             )
             // archive the artifacts
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
+        }
+        failure {
+            updateGitHubCommitStatus name: 'Jenkins', state: 'FAILURE', context: 'Jenkins', description: 'Jenkins build failed'
+        }
+        success {
+            updateGitHubCommitStatus name: 'Jenkins', state: 'SUCCESS', context: 'Jenkins', description: 'Jenkins build succeeded'
         }
     }
 }

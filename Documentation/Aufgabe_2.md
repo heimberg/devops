@@ -188,10 +188,82 @@ Jeder Push auf den Develop-Branch löst nun einen Build aus. Dazu wird das GitLa
 
 GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein neuer Build gestartet werden soll, da Jenkins aber nur lokal ausgeführt wird, kann diese Funktionalität nicht verwendet werden.  
 
-#### Build Stage
-Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden. 
+#### Checkout des Repositories
+Die folgende Stage sorgt dafür, dass das Repository von GitLab (im Moment nur der `develop` Branch) ausgecheckt wird:
+```groovy
+stage('checkout from GitLab') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'gitlab-access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
+                    git url: 'https://git.ffhs.ch/matthias.heimberg/devops.git', branch: 'develop', credentialsId: 'gitlab-access'
+                }
+            }
+        }
+```
+Die dazu notwendigen Credentials werden in Jenkins hinterlegt.
 
+#### Code Quality Check / Quality Gate
 Als nächstes wurde die Stage `check code quality`konfiguriert. Voraussetzung ist die Installation des SonaQube Scanner Plugins in Jenkins. In der SonarQube WebUI wird ein Webhook für Jenkins erstellt. Die URL lautet `http://jenkins:8080/sonarqube-webhook/`. Damit kann Jenkins die Ergebnisse von SonarQube abrufen, was in der Stage `quality gate` realisiert wird. Diese bricht die Pipeline ab, wenn die Qualität des Codes nicht den Anforderungen gemäss Quality Gate in Sonarqube entspricht. 
+
+Die beiden Stages sehen wie folgt aus:
+```groovy
+stage('check code quality') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'chmod +x ./gradlew'
+                    sh './gradlew sonarqube -D"sonar.projectKey=DevOps"'
+                }
+            }
+        }
+        stage('quality gate') {
+            steps {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+```
+
+#### Build der Applikation
+Die Stage `build` baut die Applikation mittels Gradle. Die Stage sieht wie folgt aus:
+```groovy
+stage('build') {
+            steps {
+                sh './gradlew build'
+            }
+        }
+```
+
+#### Build des Docker Images / Push in die Google Container Registry
+Die Stage `create docker image and push to registry` baut das Docker Image und pusht es in die Google Container Registry. Die Stage sieht wie folgt aus:
+```groovy
+stage('create docker image and push to registry') {
+            steps {
+                withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
+                    sh '''
+                        gcloud auth activate-service-account --key-file="$GCLOUD"
+                        ./gradlew jib
+                    '''
+                }
+            }
+        }
+```
+Vor dem Ausführen des Gradle Tasks `jib` wird der Service Account aktiviert. Der Service Account ist in der Google Cloud Platform erstellt worden und hat die Berechtigung, Docker Images in die Google Container Registry zu pushen. Die Credentials für den Service Account werden in Jenkins hinterlegt.
+
+#### Deployment auf Google Cloud Run
+Die Stage `deploy to cloud run` deployt das Docker Image auf Google Cloud Run. Die Stage sieht wie folgt aus:
+```groovy
+steps {
+                withCredentials([file(credentialsId: 'gcloudcompute', variable: 'GCLOUDCOMPUTE')]) {
+                    sh '''
+                        gcloud auth activate-service-account --key-file="$GCLOUDCOMPUTE"
+                        gcloud run deploy devops --image gcr.io/cellular-syntax-231507/devops --platform managed --region europe-west4 --allow-unauthenticated --port 7000 --service-account 382263290396-compute@developer.gserviceaccount.com 	
+
+                    '''
+                }
+            }
+```
+Der dazu notwendige Service Account besitzt die Berechtigung, Docker Images auf Google Cloud Run zu deployen. Die Verwendung des Service Accounts muss im Befehl `gcloud run deploy` explizit angegeben werden, ansonsten wird der Default Service Account verwendet, welcher nicht die nötigen Berechtigungen hat. 
+
+#### Post Actions
+Nach den Stages werden die Post Actions ausgeführt. 
 
 Damit Jenkins das Ergebnis der Pipeline per Mail an den Entwickler senden kann, muss 
 
