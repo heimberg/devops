@@ -75,13 +75,9 @@ pipeline {
     }
 
     post {
-        failure {
-            updateGitLabCommitStatus name: 'Jenkins', state: 'failed'
-        }
         success {
             // archive the artifacts
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
-            updateGitLabCommitStatus name: 'Jenkins', state: 'success'
         }
         always {
             emailext (
