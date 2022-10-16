@@ -56,5 +56,17 @@ pipeline {
                 }
             }
         }
+
+        post {
+            always {
+                emailext (
+                    subject: 'Jenkins build: $BUILD_STATUS',
+                    body: '$BUILD_URL',
+                    to: 'matthias.heimberg@students.ffhs.ch'
+                )
+                // archive the artifacts
+                archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
+            }
+        }
     }
 }

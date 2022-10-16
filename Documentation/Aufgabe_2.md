@@ -190,6 +190,11 @@ GitLab könnte nun Jenkins per Webhook über die API benachrichtigen, wenn ein n
 
 Damit die Build Stage mit Gradle funktioniert, muss das Gradle Plugin installiert werden. 
 
+Als nächstes wurde die Stage `check code quality`konfiguriert. Voraussetzung ist die Installation des SonaQube Scanner Plugins in Jenkins. In der SonarQube WebUI wird ein Webhook für Jenkins erstellt. Die URL lautet `http://jenkins:8080/sonarqube-webhook/`. Damit kann Jenkins die Ergebnisse von SonarQube abrufen, was in der Stage `quality gate` realisiert wird. Diese bricht die Pipeline ab, wenn die Qualität des Codes nicht den Anforderungen gemäss Quality Gate in Sonarqube entspricht. 
+
+Damit Jenkins das Ergebnis der Pipeline per Mail an den Entwickler senden kann, muss 
+
+Im Google Account wird ein App Password für den Jenkins User erstellt. Dieses wird in den Jenkins Credentials hinterlegt.
 
 
 ## Probleme und deren Lösung
