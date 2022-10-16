@@ -1,10 +1,7 @@
 pipeline {
 
     agent any
-    // check repo for changes
-    triggers {
-        pollSCM('H/5 * * * *')
-    }
+
     environment {
     CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
     } 
