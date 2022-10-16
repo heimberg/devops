@@ -66,10 +66,10 @@ pipeline {
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
         }
         failure {
-            updateGitHubCommitStatus name: 'Jenkins', state: 'FAILURE', context: 'Jenkins', description: 'Jenkins build failed'
+            updateGitLabCommitStatus name: 'Jenkins', state: 'FAILURE', context: 'Jenkins', description: 'Jenkins build failed'
         }
         success {
-            updateGitHubCommitStatus name: 'Jenkins', state: 'SUCCESS', context: 'Jenkins', description: 'Jenkins build succeeded'
+            updateGitLabCommitStatus name: 'Jenkins', state: 'SUCCESS', context: 'Jenkins', description: 'Jenkins build succeeded'
         }
     }
 }
