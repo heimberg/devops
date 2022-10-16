@@ -9,13 +9,16 @@ pipeline {
     options {
         gitLabConnection('GitLab DevOps')
         gitlabCommitStatus(name: 'Jenkins')
+        gitlabBuilds(builds: ['checkout from GitLab', 'check code quality', 'quality gate', 'build', 'create docker image and push to registry', 'deploy to cloud run'])
     }
 
     stages {
         stage('checkout from GitLab') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'gitlab-access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
-                    git url: 'https://git.ffhs.ch/matthias.heimberg/devops.git', branch: 'develop', credentialsId: 'gitlab-access'
+                gitlabCommitStatus(name: 'checkout from GitLab') {
+                    withCredentials([usernamePassword(credentialsId: 'gitlab-access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
+                        git url: 'https://git.ffhs.ch/matthias.heimberg/devops.git', branch: 'develop', credentialsId: 'gitlab-access'
+                    }
                 }
             }
         }
