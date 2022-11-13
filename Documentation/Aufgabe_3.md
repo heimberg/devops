@@ -17,4 +17,4 @@ In dieser Arbeit wird, wie bereits in Aufgabe 2 beschrieben, versucht, möglichs
 
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
-- Das `performance plugin` steht im GUI nicht zur Verfügung. Das Plugin wird manuell via `jenkins-plugin-cli --plugins performance:3.20` installiert.
+- Das `performance plugin` steht im GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via `jenkins-plugin-cli --plugins performance:3.20` installiert.
