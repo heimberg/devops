@@ -22,3 +22,12 @@ services:
           - ./sonarqube-logs:/opt/sonarqube/logs
           - ./sonarqube-temp:/opt/sonarqube/temp
       restart: always
+
+  jemeter:
+      image: justb4/jmeter
+      container_name: jemeter
+      ports:
+          - "60000:60000"
+      volumes:
+          - ./jemeter-data:/var/lib/jmeter
+      restart: always
