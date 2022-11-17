@@ -71,6 +71,7 @@ Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
 - Das `performance plugin` steht im GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via `jenkins-plugin-cli --plugins performance:3.20` installiert.
 - Docker ist im Jenkins Container nicht installiert. Lösung: Mittels `docker exec -u root -it jenkins /bin/bash` als `root` in den Jenkins Container wechseln und mit `curl https://get.docker.com/ > dockerinstall && chmod 777 dockerinstall && ./dockerinstall` das Docker-CLI installieren. 
+- Im Jenkins Container fehlen die Berchtigungen, um `docker` auszuführen. Lösung: `docker-compose.yml` anpassen, damit der Jenkins Container als `root` läuft (als schneller Fix, nicht empfohlen).
 
 
 // https://davelms.medium.com/run-jenkins-in-a-docker-container-part-3-run-as-root-user-12b9624a340b
