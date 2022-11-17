@@ -141,7 +141,7 @@ ausgelesen werden. Danach wird die Installation von Jenkins mit den default Plug
 ### Konfiguration von Jenkins
 Zunächst wird die Authentifizierung an der Google Cloud Platform (GCP) konfiguriert. Dazu muss die Google Cloud CLI im Jenkins Container gemäss der Anleitung von [cloud.google.com/sdk/docs/install#deb](https://cloud.google.com/sdk/docs/install#deb) installiert werden. Dies muss mittels Bash im Container durchgeführt werden, dazu muss die Shell als root gestartet werden:
 ```bash
-docker exec -it jenkins /bin/bash
+docker exec -u root -it jenkins /bin/bash
 ```
 Mit Hilfe der folgenden kleinen Test-Pipeline wird geprüft, ob die Google Cloud CLI korrekt installiert wurde:
 ```groovy

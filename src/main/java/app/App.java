@@ -21,8 +21,7 @@ public class App {
         app.get("api/users/{id}", ctx -> {
             var id = Integer.valueOf(ctx.pathParam("id"));
             var user = users.findById(id);
-            user.map(ctx::json)
-                    .orElse(ctx.status(404));
+            user.map(ctx::json);
         });
 
         app.delete("api/users/{id}", ctx -> {
