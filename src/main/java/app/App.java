@@ -21,11 +21,10 @@ public class App {
         app.get("api/users/{id}", ctx -> {
             var id = Integer.valueOf(ctx.pathParam("id"));
             var user = users.findById(id);
-            if (user != null) {
-                ctx.json(user);
-            } else {
+            if (user.isEmpty()) {
                 ctx.status(404);
             }
+            ctx.json(user);
         });
 
         app.delete("api/users/{id}", ctx -> {
