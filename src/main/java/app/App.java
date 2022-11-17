@@ -23,8 +23,9 @@ public class App {
             var user = users.findById(id);
             if (user.isEmpty()) {
                 ctx.status(404);
+            } else {
+                ctx.json(user.get());
             }
-            ctx.json(user);
         });
 
         app.delete("api/users/{id}", ctx -> {
