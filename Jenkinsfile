@@ -81,7 +81,7 @@ pipeline {
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                         export JMETER_PATH=/mnt/jmeter
                         export JMETER_FILE=check_api.jmx
-                        docker run --rm -v jmeter-data:"${JMETER_PATH}" justb4/jmeter -n -t /mnt/jmeter/scripts -l "${JMETER_PATH}"/tmp/result_"${TIMESTAMP}".jtl -j "${JMETER_PATH}/tmp/jmeter_${TIMESTAMP}".log 
+                        docker run --rm -v jmeter-data:"${JMETER_PATH}" justb4/jmeter -n -t /mnt/jmeter/scripts/"${JMETER_FILE}" -l "${JMETER_PATH}"/tmp/result_"${TIMESTAMP}".jtl -j "${JMETER_PATH}/tmp/jmeter_${TIMESTAMP}".log 
                     '''
                 }
             }
