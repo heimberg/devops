@@ -29,6 +29,7 @@ services:
   jenkins:
       image: jenkins/jenkins:lts
       container_name: jenkins
+      user: root
       ports:
           - "8080:8080"
           - "50000:50000"
@@ -62,14 +63,24 @@ Wird `docker compose` auf einem Windows Host ausgeführt, muss zunächst die Var
 ```env
 COMPOSE_CONVERT_WINDOWS_PATHS=1
 ```
-Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen. Ist Docker im Jenkins Container installiert, kann nun aus dem Jenkins Container auf den Docker Socket zugegriffen werden. Damit lässt sich JMeter in einem Docker Container parallel zum Jenkins Container starten und ausführen. Die Test-Scripte müssen im Verzeichnis `/jmeter-data/scripts` liegen, damit sie vom Jenkins Container aus gefunden werden können.
+Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen. Zudem muss das `Docker` Plugin in Jenkins installiert werden. Über `Dashboard > Jenkins verwalten > Configure Clouds` muss Docker wie folgt eingerichtet werden:
+
+![](./img/Docker1.png)
+
+Unter `Docker Host URI` muss der Pfad zum Docker Socket eingetragen werden, der in der `docker-compose.yml` Datei definiert wurde. Mittels `Test Connection` kann die Verbindung getestet werden. 
+
+Ist Docker im Jenkins Container installiert, kann nun aus dem Jenkins Container auf den Docker Socket zugegriffen werden. Damit lässt sich JMeter in einem Docker Container parallel zum Jenkins Container starten und ausführen. Die Test-Scripte müssen im Verzeichnis `/jmeter-data/scripts` liegen, damit sie vom Jenkins Container aus gefunden werden können.
+
+### JMeter Test-Scripts
+Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Die Test-Scripts werden im Verzeichnis `/jmeter-data/scripts` abgelegt. Die Test-Scripts sind in der `docker-compose.yml` Datei als Volume gemountet. 
 
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
 - Das `performance plugin` steht im Jenkins-GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via über den CLI Befehl `jenkins-plugin-cli --plugins performance:3.20` installiert.
 - Docker ist im Jenkins Container nicht installiert. Lösung: Mittels `docker exec -u root -it jenkins /bin/bash` als `root` in den Jenkins Container wechseln und mit `curl https://get.docker.com/ > dockerinstall && chmod 777 dockerinstall && ./dockerinstall` das Docker-CLI installieren. 
 - Im Jenkins Container fehlen die Berchtigungen, um `docker` auszuführen. Lösung: `docker-compose.yml` anpassen, damit der Jenkins Container als `root` läuft (als schneller Fix innerhalb dieser Modulaufgabe, für den produktiven Einsatz nicht empfohlen).
-- Sonarqube lässt sich nicht mehr starten, nachdem der Container auf zwei unterschiedlichen Maschinen welche auf die gleichen persistenten Daten zugreifen, gestartet wurde. Lösung: Die persistenten Daten löschen und den Container neu starten. Darauf muss Sonarqube gemäss Aufgabe 2 neu konfiguriert werden.
-
+- Sonarqube lässt sich nicht mehr starten, nachdem der Container auf zwei unterschiedlichen Maschinen welche auf die gleichen persistenten Daten zugreifen, gestartet wurde. Lösung: Die persistenten Daten löschen und den Container neu starten. Darauf muss Sonarqube gemäss Aufgabe 1 neu konfiguriert werden (Account, Secret, Webhook, Quality Gate).
+- Fehlende Persmissions auf dem Docker Socket des Hosts. Lösung: `user: root` in der `docker-compose.yml` Datei hinzufügen. Dies sorgt dafür, dass der Jenkins Container als `root` läuft. Dies ist jedoch nicht empfohlen, da dadurch die Sicherheit des Containers beeinträchtigt wird (temporärer Fix für die Modulaufgabe, für den produktiven Einsatz nicht empfohlen)
+- 
 
 // https://davelms.medium.com/run-jenkins-in-a-docker-container-part-3-run-as-root-user-12b9624a340b
