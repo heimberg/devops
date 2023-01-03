@@ -63,11 +63,7 @@ Wird `docker compose` auf einem Windows Host ausgeführt, muss zunächst die Var
 ```env
 COMPOSE_CONVERT_WINDOWS_PATHS=1
 ```
-Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen. Zudem muss das `Docker` Plugin in Jenkins installiert werden. Über `Dashboard > Jenkins verwalten > Configure Clouds` muss Docker wie folgt eingerichtet werden:
-
-![](./img/Docker1.png)
-
-Unter `Docker Host URI` muss der Pfad zum Docker Socket eingetragen werden, der in der `docker-compose.yml` Datei definiert wurde. Mittels `Test Connection` kann die Verbindung getestet werden. 
+Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen. Zudem muss Docker im Jenkins Container installiert werden. Dies erfolgt manuell in der CLI mittels `curl https://get.docker.com/ > dockerinstall && chmod 777 dockerinstall && ./dockerinstall`.
 
 Ist Docker im Jenkins Container installiert, kann nun aus dem Jenkins Container auf den Docker Socket zugegriffen werden. Damit lässt sich JMeter in einem Docker Container parallel zum Jenkins Container starten und ausführen. Die Test-Scripte müssen im Verzeichnis `/jmeter-data/scripts` liegen, damit sie vom Jenkins Container aus gefunden werden können.
 
