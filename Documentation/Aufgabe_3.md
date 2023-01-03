@@ -64,14 +64,12 @@ COMPOSE_CONVERT_WINDOWS_PATHS=1
 ```
 Diese Datei muss im selben Verzeichnis wie die `docker-compose.yml` Datei liegen. Ist Docker im Jenkins Container installiert, kann nun aus dem Jenkins Container auf den Docker Socket zugegriffen werden. Damit lässt sich JMeter in einem Docker Container parallel zum Jenkins Container starten und ausführen. Die Test-Scripte müssen im Verzeichnis `/jmeter-data/scripts` liegen, damit sie vom Jenkins Container aus gefunden werden können.
 
-
-
-
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
-- Das `performance plugin` steht im GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via `jenkins-plugin-cli --plugins performance:3.20` installiert.
+- Das `performance plugin` steht im Jenkins-GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via über den CLI Befehl `jenkins-plugin-cli --plugins performance:3.20` installiert.
 - Docker ist im Jenkins Container nicht installiert. Lösung: Mittels `docker exec -u root -it jenkins /bin/bash` als `root` in den Jenkins Container wechseln und mit `curl https://get.docker.com/ > dockerinstall && chmod 777 dockerinstall && ./dockerinstall` das Docker-CLI installieren. 
-- Im Jenkins Container fehlen die Berchtigungen, um `docker` auszuführen. Lösung: `docker-compose.yml` anpassen, damit der Jenkins Container als `root` läuft (als schneller Fix, nicht empfohlen).
+- Im Jenkins Container fehlen die Berchtigungen, um `docker` auszuführen. Lösung: `docker-compose.yml` anpassen, damit der Jenkins Container als `root` läuft (als schneller Fix innerhalb dieser Modulaufgabe, für den produktiven Einsatz nicht empfohlen).
+- Sonarqube lässt sich nicht mehr starten, nachdem der Container auf zwei unterschiedlichen Maschinen welche auf die gleichen persistenten Daten zugreifen, gestartet wurde. Lösung: Die persistenten Daten löschen und den Container neu starten. Darauf muss Sonarqube gemäss Aufgabe 2 neu konfiguriert werden.
 
 
 // https://davelms.medium.com/run-jenkins-in-a-docker-container-part-3-run-as-root-user-12b9624a340b
