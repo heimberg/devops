@@ -89,7 +89,7 @@ Der Befehl `docker run` startet einen Docker Container mit dem Image `justb4/jme
 
 
 ### JMeter Test-Scripts
-Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Die Test-Scripts werden im Verzeichnis `/jmeter-data/scripts` abgelegt. Die Test-Scripts sind in der `docker-compose.yml` Datei als Volume gemountet. 
+Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Die Test-Scripts werden im Host-Verzeichnis `./jmeter-data/scripts` abgelegt. Die Test-Scripts sind in der `docker-compose.yml` Datei als Volume gemountet. 
 
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
@@ -99,5 +99,6 @@ Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und a
 - Sonarqube lässt sich nicht mehr starten, nachdem der Container auf zwei unterschiedlichen Maschinen welche auf die gleichen persistenten Daten zugreifen, gestartet wurde. Lösung: Die persistenten Daten löschen und den Container neu starten. Darauf muss Sonarqube gemäss Aufgabe 1 neu konfiguriert werden (Account, Secret, Webhook, Quality Gate).
 - Fehlende Persmissions auf dem Docker Socket des Hosts. Lösung: `user: root` in der `docker-compose.yml` Datei hinzufügen. Dies sorgt dafür, dass der Jenkins Container als `root` läuft. Dies ist jedoch nicht empfohlen, da dadurch die Sicherheit des Containers beeinträchtigt wird (temporärer Fix für die Modulaufgabe, für den produktiven Einsatz nicht empfohlen).
 - JMeter Skripts werden nicht ausgeführt, Fehlermeldung `No X11 DISPLAY variable was set, but this program performed an operation which requires it.`. Lösung: JMeter mit Parameter `-n` starten, damit keine GUI benötigt wird. Dieser Parameter wird im Jenkinsfile angegeben.
+- JMeter Skripts können nicht gefunden werden, offenbar wird das Verzeichnis nicht korrekt gemounted (`An error occurred: The file /mnt/jmeter/scripts/check_api.jmx doesn't exist or can't be opened`). Das Problem ist, dass das Mounten des Verzeichnisses innerhalb des Jenkins Containers erfolgt. Lösung: Der entsprechende Host-Folder muss zunächst per `docker-compose.yml` gemountet werden. Anschliessend kann dieses Verzeichnis im laufenden Jenkins Container in den JMeter Container gemountet werden.  
 
 // https://davelms.medium.com/run-jenkins-in-a-docker-container-part-3-run-as-root-user-12b9624a340b
