@@ -85,6 +85,33 @@ Die JMeter Tests werden als weiterer Step im Jenkinsfile definiert. Dazu wird de
 ```
 Der Befehl `docker run` startet einen Docker Container mit dem Image `justb4/jmeter`. Dieses Image enthält JMeter (Quelle: [github.com/justb4/docker-jmeter](https://github.com/justb4/docker-jmeter)). Der Befehl `--rm` sorgt dafür, dass der Container nach dem Test gelöscht wird. Das Volume `jmeter-data` wird an den Pfad `/mnt/jmeter` gemountet. Der Pfad `/mnt/jmeter` ist der Pfad, an dem JMeter im Container erwartet, dass die Test-Scripts liegen. Der Befehl `-n` sorgt dafür, dass JMeter im Non-GUI Modus läuft. Der Befehl `-t` gibt den Pfad an, an dem die Test-Scripts liegen. Der Befehl `-l` gibt den Pfad an, an dem das Ergebnis des Tests gespeichert werden soll. Der Befehl `-j` gibt den Pfad an, an dem das Log des Tests gespeichert werden soll.
 
+### Fehlschlag beim Einbinden des Volumes
+Probleme mit dem Einbinden des Volumes `jemeter-data` vom Host in den JMeter Container, welcher über den Docker Socket des Hosts aus dem Jenkins Container heraus gestartet wird, konnten auch nach mehreren Stunden nicht gelöst werden. Deshalb wurde nach einiger Recherche der folgende Ansatz verfolgt:
+1. Jmeter wird wie zuvor in einem Docker Container gestartet
+2. Der Start des JMeter Containers wird durch einen `docker agent` im Jenkinsfile ausgeführt
+3. Dazu müssen die Plugins `Docker` und `Docker Pipeline` in Jenkins installiert werden
+
+Damit wird der entsprechende Step im Jenkinsfile wie folgt abgeändert:
+```groovy
+stage('test with jmeter') {
+            agent { 
+                docker {
+                    image 'justb4/jmeter:5.1.1'
+                    args '-v /var/jenkins_home/jmeter-data:/home/user/jmeter'
+                }
+            }
+            steps {
+                gitlabCommitStatus(name: 'test with jmeter') {
+                    sh '''
+                        export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+                        jmeter -n -t /home/user/jmeter/check_api.jmx -l /home/user/jmeter/result_${TIMESTAMP}.jtl -j /home/user/jmeter/jmeter_${TIMESTAMP}.log
+                    '''
+                }
+            }
+        }
+```
+
+
 
 
 
@@ -94,12 +121,7 @@ Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und a
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
 - Das `performance plugin` steht im Jenkins-GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via über den CLI Befehl `jenkins-plugin-cli --plugins performance:3.20` installiert.
-- Docker ist im Jenkins Container nicht installiert. Lösung: Mittels `docker exec -u root -it jenkins /bin/bash` als `root` in den Jenkins Container wechseln und mit `curl https://get.docker.com/ > dockerinstall && chmod 777 dockerinstall && ./dockerinstall` das Docker-CLI installieren. 
-- Im Jenkins Container fehlen die Berchtigungen, um `docker` auszuführen. Lösung: `docker-compose.yml` anpassen, damit der Jenkins Container als `root` läuft (als schneller Fix innerhalb dieser Modulaufgabe, für den produktiven Einsatz nicht empfohlen).
-- Sonarqube lässt sich nicht mehr starten, nachdem der Container auf zwei unterschiedlichen Maschinen welche auf die gleichen persistenten Daten zugreifen, gestartet wurde. Lösung: Die persistenten Daten löschen und den Container neu starten. Darauf muss Sonarqube gemäss Aufgabe 1 neu konfiguriert werden (Account, Secret, Webhook, Quality Gate).
-- Fehlende Persmissions auf dem Docker Socket des Hosts. Lösung: `user: root` in der `docker-compose.yml` Datei hinzufügen. Dies sorgt dafür, dass der Jenkins Container als `root` läuft. Dies ist jedoch nicht empfohlen, da dadurch die Sicherheit des Containers beeinträchtigt wird (temporärer Fix für die Modulaufgabe, für den produktiven Einsatz nicht empfohlen).
-- JMeter Skripts werden nicht ausgeführt, Fehlermeldung `No X11 DISPLAY variable was set, but this program performed an operation which requires it.`. Lösung: JMeter mit Parameter `-n` starten, damit keine GUI benötigt wird. Dieser Parameter wird im Jenkinsfile angegeben.
-- JMeter Skripts können nicht gefunden werden, offenbar wird das Verzeichnis nicht korrekt gemounted (`An error occurred: The file /mnt/jmeter/scripts/check_api.jmx doesn't exist or can't be opened`). 
+- JMeter lässt sich nicht aus dem Jenkins Container starten. Lösung: Es wird ein `docker agent` im Jenkinsfile definiert. Die JMeter Befehle können dann im entsprechenden Step deklariert werden. Der `docker agent` startet einen Docker Container, in dem JMeter ausgeführt wird.
 - Jenkins erkennt den `docker agent` nicht. Lösung: Das Plugin `docker pipeline` in Jenkins installieren.
 
 

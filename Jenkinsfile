@@ -91,7 +91,7 @@ pipeline {
                 gitlabCommitStatus(name: 'test with jmeter') {
                     sh '''
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                        jmeter -n -t check_api.jmx -l result_${TIMESTAMP}.jtl -j jmeter_${TIMESTAMP}.log
+                        jmeter -n -t /home/user/jmeter/check_api.jmx -l /home/user/jmeter/result_${TIMESTAMP}.jtl -j /home/user/jmeter/jmeter_${TIMESTAMP}.log
                     '''
                 }
             }
