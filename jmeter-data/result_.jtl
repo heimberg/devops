@@ -1,0 +1,9 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1672840103052,818,get_users,404,Not Found,Thread-Gruppe 1-1,text,false,Filter: [0]['name'] can only be applied to arrays. Current context is: Not Found,376,144,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users,814,0,442
+1672840103913,455,get_data_from_random_user,200,OK,Thread-Gruppe 1-1,text,false,Expected to find an object with property ['name'] in path $ but found 'net.minidev.json.JSONArray'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.,626,145,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users/,455,0,0
+1672840104369,85,create_new_user,201,Created,Thread-Gruppe 1-1,text,true,,431,276,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users,85,0,0
+1672840104454,41,get_new_user,404,Not Found,Thread-Gruppe 1-1,text,false,Response was null,363,146,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users/6,41,0,0
+1672841025556,497,get_users,200,OK,Thread-Gruppe 1-1,text,true,,694,144,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users,494,0,438
+1672841026111,41,get_data_from_random_user,200,OK,Thread-Gruppe 1-1,text,true,,428,146,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users/3,41,0,0
+1672841026152,40,create_new_user,201,Created,Thread-Gruppe 1-1,text,true,,431,276,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users,40,0,0
+1672841026193,35,get_new_user,200,OK,Thread-Gruppe 1-1,text,true,,426,146,1,1,https://devops-d4bqj7s2iq-ez.a.run.app/api/users/6,35,0,0

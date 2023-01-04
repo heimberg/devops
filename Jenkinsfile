@@ -75,11 +75,15 @@ pipeline {
 
         // test with jmeter inside docker container (jenkins container binds to docker socket on host)
         stage('test with jmeter') {
+            agent { docker
+                image: 'justb4:jmeter'
+                args '-v /var/jenkins_home/jmeter-data:/home/user/jmeter'
+            }
             steps {
                 gitlabCommitStatus(name: 'test with jmeter') {
                     sh '''
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                        docker run --rm -v "/C/Users/matth/projects/devops/jmeter-data":/home/user/jmeter justb4/jmeter -n -t /home/user/jmeter/check_api.jmx 
+                        jmeter -n -t check_api.jmx -l result_${TIMESTAMP}.jtl -j jmeter_${TIMESTAMP}.log
                     '''
                 }
             }
