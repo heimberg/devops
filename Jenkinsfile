@@ -79,9 +79,7 @@ pipeline {
                 gitlabCommitStatus(name: 'test with jmeter') {
                     sh '''
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                        export JMETER_PATH=/mnt/jmeter
-                        export JMETER_FILE=check_api.jmx
-                        docker run --rm -v ${PWD}/jmeter-data:${PWD} justb4/jmeter -n -t ${JMETER_FILE} -l ${PWD}/result_"${TIMESTAMP}".jtl -j ${PWD}/jmeter_"${TIMESTAMP}".log 
+                        docker run --rm -v ${PWD}/jmeter-data:${PWD} justb4/jmeter -n -t ${PWD}/check_api.jmx -l ${PWD}/result_"${TIMESTAMP}".jtl -j ${PWD}/jmeter_"${TIMESTAMP}".log 
                     '''
                 }
             }
