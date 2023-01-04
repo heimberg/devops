@@ -84,7 +84,7 @@ pipeline {
             agent { 
                 docker {
                     image 'justb4/jmeter:5.1.1'
-                    args '-v /var/jenkins_home/jmeter-data:/home/user/jmeter'
+                    args '-v /var/jenkins_home/jmeter-data:/home/user/jmeter --entrypoint='''
                 }
             }
             steps {

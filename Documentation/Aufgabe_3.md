@@ -112,9 +112,6 @@ stage('test with jmeter') {
 ```
 
 
-
-
-
 ### JMeter Test-Scripts
 Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Die Test-Scripts werden im Host-Verzeichnis `./jmeter-data/scripts` abgelegt. Die Test-Scripts sind in der `docker-compose.yml` Datei als Volume gemountet. 
 
