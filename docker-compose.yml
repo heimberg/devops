@@ -9,7 +9,6 @@ services:
           - "50000:50000"
       volumes:
           - ./jenkins-data:/var/jenkins_home
-          - ./jmeter-data:/var/jenkins_home/workspace/Devops-Aufgabe2_develop_3/
           - //var/run/docker.sock://var/run/docker.sock
       restart: always
       networks:
