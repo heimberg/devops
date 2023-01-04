@@ -80,7 +80,7 @@ pipeline {
         }
 
         // test with jmeter inside docker container (jenkins container binds to docker socket on host)
-        stage('test with jmeter') {
+        /* stage('test with jmeter') {
             agent { 
                 docker {
                     image 'justb4/jmeter:5.1.1'
@@ -95,7 +95,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        } */
     }
 
     post {

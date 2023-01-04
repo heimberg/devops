@@ -110,17 +110,33 @@ stage('test with jmeter') {
             }
         }
 ```
-
+Das Skript kann aber wieder nicht gestartet werden, da der Entrypoint des Containers nicht dem vom Agent erwarteten Entrypoint entspricht. Der folgende Fehler wird ausgegeben:
+```bash
+ERROR: The container started but didn't run the expected command. Please double check your ENTRYPOINT does execute the command passed as docker run argument, as required by official docker images
+```
+Wird der Entrypoint auf `/bin/sh` gesetzt, so wird der folgende Fehler ausgegeben:
+```bash
+java.io.IOException: Failed to run top 'c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44'. Error: Error response from daemon: Container c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44 is not running
+```
+Obwohl der Container nachweislich gestartet wird (er wird aber kurz nach Start wieder beendet, weshalb Jenkins das Kommando `docker ps` nicht ausführen kann). Auf Grund der zeitlichen Beschränkungen wurde der Ansatz dann nicht mehr weiter verfolgt und der entsprechende Step im Jenkinsfile auskommentiert.
 
 ### JMeter Test-Scripts
-Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Die Test-Scripts werden im Host-Verzeichnis `./jmeter-data/scripts` abgelegt. Die Test-Scripts sind in der `docker-compose.yml` Datei als Volume gemountet. 
+Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Dabei wurden die folgenden Tests definiert:
+1. `get_users`: Holt mittels `GET` alle Users vom Endpunkt `/api/users`
+   1. `check_first_user`: Prüft, ob der erste User den Namen `Bruno` besitzt
+   2. `check_birth_year_of_third_user`: Prüft, ob das Geburtsjahr des dritten Users `2001` ist
+   3. `extract _random_user_ID`: Extrahiert eine zufällige User ID und weist diese der Variable `${id}` zu
+2. `get_data_from_random_user`: Holt mittels `GET` die Daten des Users mit der ID `${id}` vom Endpunkt `/api/users/${id}`
+   1. `check_if_user_exists`: Prüft, ob der User mit der ID `${id}` existiert indem geprüft wird, ob dieser einen Namen besitzt
+3. `create_new_user`: Erstellt mittels `POST` einen neuen User auf dem Endpunkt `/api/users` mit den Daten `{"id": 6, "name": "Hans", "email": "hans@hans.com", "birthYear": 1990}` 
+4. `get_new_user`: Holt mittels `GET` den neu erstellten User vom Endpunkt `/api/users/6`
+   1. `check_new_user`: Prüft, ob der neu erstellte User existiert indem geprüft wird, ob dieser den Namen `Hans` besitzt
+
+![](./img/jmeter.png)
+
 
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
 - Das `performance plugin` steht im Jenkins-GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via über den CLI Befehl `jenkins-plugin-cli --plugins performance:3.20` installiert.
 - JMeter lässt sich nicht aus dem Jenkins Container starten. Lösung: Es wird ein `docker agent` im Jenkinsfile definiert. Die JMeter Befehle können dann im entsprechenden Step deklariert werden. Der `docker agent` startet einen Docker Container, in dem JMeter ausgeführt wird.
 - Jenkins erkennt den `docker agent` nicht. Lösung: Das Plugin `docker pipeline` in Jenkins installieren.
-
-
-
-// https://davelms.medium.com/run-jenkins-in-a-docker-container-part-3-run-as-root-user-12b9624a340b
