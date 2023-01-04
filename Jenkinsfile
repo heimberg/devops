@@ -1,6 +1,6 @@
 pipeline {
 
-    agent any
+    agent none
 
     environment {
     CLOUDSDK_CORE_PROJECT='cellular-syntax-231507'
@@ -14,6 +14,7 @@ pipeline {
 
     stages {
         stage('checkout from GitLab') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'checkout from GitLab') {
                     withCredentials([usernamePassword(credentialsId: 'gitlab-access', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
@@ -23,6 +24,7 @@ pipeline {
             }
         }
         stage('check code quality') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'check code quality') {
                     withSonarQubeEnv('SonarQube') {
@@ -33,6 +35,7 @@ pipeline {
             }
         }
         stage('quality gate') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'quality gate') {
                     waitForQualityGate abortPipeline: true
@@ -40,6 +43,7 @@ pipeline {
             }
         }
         stage('build') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'build') {
                     sh './gradlew build'
@@ -47,6 +51,7 @@ pipeline {
             }
         }
         stage('create docker image and push to registry') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'create docker image and push to registry') {
                     withCredentials([file(credentialsId: 'gcloud', variable: 'GCLOUD')]) {
@@ -60,6 +65,7 @@ pipeline {
         }
         // deploy to google cloud run on port 7000
         stage('deploy to cloud run') {
+            agent any
             steps {
                 gitlabCommitStatus(name: 'deploy to cloud run') {
                     withCredentials([file(credentialsId: 'gcloudcompute', variable: 'GCLOUDCOMPUTE')]) {
