@@ -27,6 +27,7 @@ Die Applikation kann lokal gestartet werden. Dazu muss das Projekt lokal ausgech
 ./gradlew run
 ```
 Die Applikation ist dann unter http://localhost:7000 erreichbar. Die Rest API ist unter http://localhost:7000/api/users erreichbar. 
+Die Prometheus Metriken sind unter http://localhost:7000/metrics erreichbar.
 
 ## Docker
 Die Applikation kann auch als lokaler Docker Container gestartet werden. Dazu muss das Projekt lokal ausgecheckt werden und im Terminal folgender Befehl ausgeführt werden:
@@ -34,9 +35,13 @@ Die Applikation kann auch als lokaler Docker Container gestartet werden. Dazu mu
 ./gradlew jibDockerBuild
 ```
 
+## Deployment
+Die Applikation wird als Docker Container via Google Cloud Registry auf Google Cloud Run deployed. Sie ist unter [https://devops-d4bqj7s2iq-ez.a.run.app](https://devops-d4bqj7s2iq-ez.a.run.app) erreichbar.
+
 ## Dokumentation
 Die Dokumentation zur Semesterarbeit wird im Ordner `/Documentation` versioniert.
 - [Aufgabe 1](./Documentation/Aufgabe_1.md)
 - [Aufgabe 2](./Documentation/Aufgabe_2.md)
-
+- [Aufgabe 3](./Documentation/Aufgabe_3.md)
+- [Aufgabe 4](./Documentation/Aufgabe_4.md)
 
