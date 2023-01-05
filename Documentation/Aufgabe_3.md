@@ -70,14 +70,18 @@ Ist Docker im Jenkins Container installiert, kann nun aus dem Jenkins Container 
 ### Einbinden von JMeter in das Jenkinsfile
 Die JMeter Tests werden als weiterer Step im Jenkinsfile definiert. Dazu wird der folgende Code verwendet:
 ```groovy
-// test with jmeter inside docker container (jenkins container binds to docker socket on host)
+// test with jmeter inside docker container (jenkins container binds to 
+// docker socket on host)
         stage('test with jmeter') {
             steps {
                 gitlabCommitStatus(name: 'test with jmeter') {
                     sh '''
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                         export JMETER_PATH=/mnt/jmeter
-                        docker run --rm -v jmeter-data:"${JMETER_PATH}" justb4/jmeter -n -t /mnt/jmeter/scripts -l "${JMETER_PATH}"/tmp/result_"${TIMESTAMP}".jtl -j "${JMETER_PATH}/tmp/jmeter_${TIMESTAMP}".log 
+                        docker run --rm -v jmeter-data:"${JMETER_PATH}" /
+                        justb4/jmeter -n -t /mnt/jmeter/scripts /
+                        -l "${JMETER_PATH}"/tmp/result_"${TIMESTAMP}".jtl /
+                        -j "${JMETER_PATH}/tmp/jmeter_${TIMESTAMP}".log 
                     '''
                 }
             }
@@ -104,7 +108,9 @@ stage('test with jmeter') {
                 gitlabCommitStatus(name: 'test with jmeter') {
                     sh '''
                         export TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                        jmeter -n -t /home/user/jmeter/check_api.jmx -l /home/user/jmeter/result_${TIMESTAMP}.jtl -j /home/user/jmeter/jmeter_${TIMESTAMP}.log
+                        jmeter -n -t /home/user/jmeter/check_api.jmx /
+                        -l /home/user/jmeter/result_${TIMESTAMP}.jtl /
+                        -j /home/user/jmeter/jmeter_${TIMESTAMP}.log
                     '''
                 }
             }
@@ -112,16 +118,23 @@ stage('test with jmeter') {
 ```
 Das Skript kann aber wieder nicht gestartet werden, da der Entrypoint des Containers nicht dem vom Agent erwarteten Entrypoint entspricht. Der folgende Fehler wird ausgegeben:
 ```bash
-ERROR: The container started but didn't run the expected command. Please double check your ENTRYPOINT does execute the command passed as docker run argument, as required by official docker images
+ERROR: The container started but didn t run the expected command. 
+Please double check your ENTRYPOINT does execute the command passed 
+as docker run argument, as required by official docker images
 ```
 Wird der Entrypoint auf `/bin/sh` gesetzt, so wird der folgende Fehler ausgegeben:
 ```bash
-java.io.IOException: Failed to run top 'c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44'. Error: Error response from daemon: Container c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44 is not running
+java.io.IOException: Failed to run top 
+c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44. 
+Error: Error response from daemon: Container 
+c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44 
+is not running
 ```
 Obwohl der Container nachweislich gestartet wird (er wird aber kurz nach Start wieder beendet, weshalb Jenkins das Kommando `docker ps` nicht ausführen kann). Auf Grund der zeitlichen Beschränkungen wurde der Ansatz dann nicht mehr weiter verfolgt und der entsprechende Step im Jenkinsfile auskommentiert.
 
 ### JMeter Test-Scripts
 Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Dabei wurden die folgenden Tests definiert:
+
 1. `get_users`: Holt mittels `GET` alle Users vom Endpunkt `/api/users`
    1. `check_first_user`: Prüft, ob der erste User den Namen `Bruno` besitzt
    2. `check_birth_year_of_third_user`: Prüft, ob das Geburtsjahr des dritten Users `2001` ist
