@@ -105,7 +105,7 @@ pipeline {
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
         }
         always {
-            node('master') {}
+            node('master') {
                 emailext (
                     subject: 'Jenkins build: $BUILD_STATUS',
                     body: '$BUILD_URL',
