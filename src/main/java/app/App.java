@@ -14,9 +14,10 @@ public class App {
         io.micrometer.core.instrument.Counter deleteUserCounter = prometheusRegistry.counter("delete_user_counter");
 
         var users = new UserRepository();
+        var usersByIDEndpoint = "/api/users/{id}";
 
         Javalin app = Javalin.create().start(7000);
-        app.get("/", (ctx) -> {
+        app.get("/", ctx -> {
             System.out.println("Root Endpoint is requested");
             ctx.result("Root Endpoint is requested");
         });
@@ -26,7 +27,7 @@ public class App {
             ctx.json(users.findAll());
         });
 
-        app.get("api/users/{id}", ctx -> {
+        app.get(usersByIDEndpoint, ctx -> {
             var id = Integer.valueOf(ctx.pathParam("id"));
             var user = users.findById(id);
             if (user.isEmpty()) {
@@ -37,7 +38,7 @@ public class App {
             }
         });
 
-        app.delete("api/users/{id}", ctx -> {
+        app.delete(usersByIDEndpoint, ctx -> {
             deleteUserCounter.increment();
             var id = Integer.valueOf(ctx.pathParam("id"));
             users.delete(id);
@@ -52,7 +53,7 @@ public class App {
             ctx.status(201);
         });
 
-        app.put("api/users/{id}", ctx -> {
+        app.put(usersByIDEndpoint, ctx -> {
             var id = Integer.valueOf(ctx.pathParam("id"));
             var user = ctx.bodyAsClass(User.class);
             var updatedUser = users.update(id, user);
