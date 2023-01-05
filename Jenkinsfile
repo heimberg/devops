@@ -100,18 +100,19 @@ pipeline {
     }
 
     post {
-        agent any
         success {
             // archive the artifacts
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
         }
         always {
-            emailext (
-                subject: 'Jenkins build: $BUILD_STATUS',
-                body: '$BUILD_URL',
-                from: 'jenkins',
-                to: 'matthias.heimberg@students.ffhs.ch'
-            )
+            node('master') {}
+                emailext (
+                    subject: 'Jenkins build: $BUILD_STATUS',
+                    body: '$BUILD_URL',
+                    from: 'jenkins',
+                    to: 'matthias.heimberg@students.ffhs.ch'
+                )   
+        }
             
         }
     }
