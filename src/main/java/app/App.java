@@ -11,6 +11,8 @@ public class App {
     public static void main(String[] args) {
         PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         io.micrometer.core.instrument.Counter userApiCounter = io.micrometer.core.instrument.Metrics.counter("user_api_counter");
+        io.micrometer.core.instrument.Counter getUserByIDCounter = io.micrometer.core.instrument.Metrics.counter("get_user_by_id_counter");
+
         var users = new UserRepository();
 
         Javalin app = Javalin.create().start(7000);
@@ -21,6 +23,7 @@ public class App {
 
         app.get("api/users", ctx -> {
             userApiCounter.increment();
+            ctx.json(users.findAll());
         });
 
         app.get("api/users/{id}", ctx -> {
@@ -29,6 +32,7 @@ public class App {
             if (user.isEmpty()) {
                 ctx.status(404);
             } else {
+                getUserByIDCounter.increment();
                 ctx.json(user.get());
             }
         });
