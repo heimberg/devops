@@ -100,6 +100,7 @@ pipeline {
     }
 
     post {
+        agent any
         success {
             // archive the artifacts
             archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
