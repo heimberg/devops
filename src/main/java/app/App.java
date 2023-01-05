@@ -5,32 +5,21 @@ import user.User;
 import user.repository.UserRepository;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.system.*;
+import io.micrometer.prometheus.*;
 
 public class App {
     public static void main(String[] args) {
-        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-        registry.config().commonTags("application", "My-Application");
-
-        new ClassLoaderMetrics().bindTo(registry);
-        new JvmMemoryMetrics().bindTo(registry);
-        new JvmGcMetrics().bindTo(registry);
-        new JvmThreadMetrics().bindTo(registry);
-        new UptimeMetrics().bindTo(registry);
-        new ProcessorMetrics().bindTo(registry);
-        new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
-
+        io.micrometer.core.instrument.Counter userApiCounter = io.micrometer.core.instrument.Metrics.counter("user_api_counter");
         var users = new UserRepository();
 
-        Javalin app = Javalin.create(config -> {
-            config.registerPlugin(new MicrometerPlugin(registry));
-        }).start(7000);
+        Javalin app = Javalin.create().start(7000);
         app.get("/", (ctx) -> {
             System.out.println("Root Endpoint is requested");
             ctx.result("Root Endpoint is requested");
         });
 
         app.get("api/users", ctx -> {
-            ctx.json(users.findAll());
+            userApiCounter.increment();
         });
 
         app.get("api/users/{id}", ctx -> {
@@ -64,7 +53,12 @@ public class App {
             ctx.json(updatedUser);
         });
 
-        app.get("/metrics", ctx -> ctx.contentType(TextFormat.CONTENT_TYPE_004).result(registry.scrape()));
+        // add prometheus metrics endpoint
+        app.get("/metrics", ctx -> {
+            ctx.result(io.micrometer.prometheus.PrometheusMeterRegistry.DEFAULT.getPrometheusRegistry().scrape());
+
+        });
+
 
 
     }
