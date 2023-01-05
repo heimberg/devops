@@ -9,6 +9,7 @@ import io.micrometer.prometheus.*;
 
 public class App {
     public static void main(String[] args) {
+        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         io.micrometer.core.instrument.Counter userApiCounter = io.micrometer.core.instrument.Metrics.counter("user_api_counter");
         var users = new UserRepository();
 
@@ -55,8 +56,7 @@ public class App {
 
         // add prometheus metrics endpoint
         app.get("/metrics", ctx -> {
-            ctx.result(io.micrometer.prometheus.PrometheusMeterRegistry.DEFAULT.getPrometheusRegistry().scrape());
-
+            ctx.result(prometheusRegistry.scrape());
         });
 
 
