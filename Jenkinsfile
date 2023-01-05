@@ -96,13 +96,7 @@ pipeline {
                 }
             }
         } */
-        // test with ZAP
-        stage('test with ZAP') {
-            agent any
-            steps {
-                
-            }
-        }
+
     }
 
     post {
