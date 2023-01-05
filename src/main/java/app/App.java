@@ -3,8 +3,6 @@ package app;
 import io.javalin.Javalin;
 import user.User;
 import user.repository.UserRepository;
-import io.micrometer.core.instrument.binder.jvm.*;
-import io.micrometer.core.instrument.binder.system.*;
 import io.micrometer.prometheus.*;
 
 public class App {
