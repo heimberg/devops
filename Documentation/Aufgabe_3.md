@@ -149,6 +149,137 @@ Die Tests können in JMeter mittels `Run` ausgeführt werden. Das Ergebnis sieht
 ![](./img/jmeter.png)
 Die Tests laufen also erfolgreich durch. Die Auswahl der Testfälle wurde auf Grund der Zeitbeschränkungen auf die oben genannten Tests beschränkt. Abgedeckt werden die wichtigsten Endpunkte der API und die wichtigsten HTTP Methoden. 
 
+## ZAP
+Der nächste Schritt ist das Einbinden von OWASP ZAP. Zunächst wurde die Funktionalität von ZAP anhand des Containers `owasp/zap2docker-stable`([https://hub.docker.com/r/owasp/zap2docker-stable/](https://hub.docker.com/r/owasp/zap2docker-stable/)) getestet. Dabei wurde die API der App auf Google Cloud gescannt. 
+
+### ZAP - Baseline Scan
+Der Baseline Scan wurde mit dem folgenden Befehl ausgeführt:
+```bash
+ docker run -t owasp/zap2docker-stable zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app
+```
+Das Ergebnis sieht wie folgt aus:
+```bash
+Using the Automation Framework
+Total of 3 URLs
+PASS: Vulnerable JS Library (Powered by Retire.js) [10003]
+PASS: In Page Banner Information Leak [10009]
+PASS: Cookie No HttpOnly Flag [10010]
+PASS: Cookie Without Secure Flag [10011]
+PASS: Cross-Domain JavaScript Source File Inclusion [10017]
+PASS: Content-Type Header Missing [10019]
+PASS: Anti-clickjacking Header [10020]
+PASS: Information Disclosure - Debug Error Messages [10023]
+PASS: Information Disclosure - Sensitive Information in URL [10024]
+PASS: Information Disclosure - Sensitive Information in HTTP Referrer Header [10025]
+PASS: HTTP Parameter Override [10026]
+PASS: Information Disclosure - Suspicious Comments [10027]
+PASS: Open Redirect [10028]
+PASS: Cookie Poisoning [10029]
+PASS: User Controllable Charset [10030]
+PASS: User Controllable HTML Element Attribute (Potential XSS) [10031]
+PASS: Viewstate [10032]
+PASS: Directory Browsing [10033]
+PASS: Heartbleed OpenSSL Vulnerability (Indicative) [10034]
+PASS: HTTP Server Response Header [10036]
+PASS: Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s) [10037]
+PASS: Content Security Policy (CSP) Header Not Set [10038]
+PASS: X-Backend-Server Header Information Leak [10039]
+PASS: Secure Pages Include Mixed Content [10040]
+PASS: HTTP to HTTPS Insecure Transition in Form Post [10041]
+PASS: HTTPS to HTTP Insecure Transition in Form Post [10042]
+PASS: User Controllable JavaScript Event (XSS) [10043]
+PASS: Big Redirect Detected (Potential Sensitive Information Leak) [10044]
+PASS: Retrieved from Cache [10050]
+PASS: X-ChromeLogger-Data (XCOLD) Header Information Leak [10052]
+PASS: Cookie without SameSite Attribute [10054]
+PASS: CSP [10055]
+PASS: X-Debug-Token Information Leak [10056]
+PASS: Username Hash Found [10057]
+PASS: X-AspNet-Version Response Header [10061]
+PASS: PII Disclosure [10062]
+PASS: Permissions Policy Header Not Set [10063]
+PASS: Timestamp Disclosure [10096]
+PASS: Hash Disclosure [10097]
+PASS: Cross-Domain Misconfiguration [10098]
+PASS: Weak Authentication Method [10105]
+PASS: Reverse Tabnabbing [10108]
+PASS: Modern Web Application [10109]
+PASS: Dangerous JS Functions [10110]
+PASS: Absence of Anti-CSRF Tokens [10202]
+PASS: Private IP Disclosure [2]
+PASS: Session ID in URL Rewrite [3]
+PASS: Script Passive Scan Rules [50001]
+PASS: Stats Passive Scan Rule [50003]
+PASS: Insecure JSF ViewState [90001]
+PASS: Java Serialization Object [90002]
+PASS: Sub Resource Integrity Attribute Missing [90003]
+PASS: Charset Mismatch [90011]
+PASS: Application Error Disclosure [90022]
+PASS: WSDL File Detection [90030]
+PASS: Loosely Scoped Cookie [90033]
+WARN-NEW: Re-examine Cache-control Directives [10015] x 1 
+	https://devops-d4bqj7s2iq-ez.a.run.app (200 OK)
+WARN-NEW: X-Content-Type-Options Header Missing [10021] x 1 
+	https://devops-d4bqj7s2iq-ez.a.run.app (200 OK)
+WARN-NEW: Strict-Transport-Security Header Not Set [10035] x 3 
+	https://devops-d4bqj7s2iq-ez.a.run.app (200 OK)
+	https://devops-d4bqj7s2iq-ez.a.run.app/robots.txt (404 Not Found)
+	https://devops-d4bqj7s2iq-ez.a.run.app/sitemap.xml (404 Not Found)
+WARN-NEW: Storable and Cacheable Content [10049] x 3 
+	https://devops-d4bqj7s2iq-ez.a.run.app (200 OK)
+	https://devops-d4bqj7s2iq-ez.a.run.app/robots.txt (404 Not Found)
+	https://devops-d4bqj7s2iq-ez.a.run.app/sitemap.xml (404 Not Found)
+FAIL-NEW: 0	FAIL-INPROG: 0	WARN-NEW: 4	WARN-INPROG: 0	INFO: 0	IGNORE: 0	PASS: 56
+```
+Es werden 4 Warnungen angezeigt. Diese sind jedoch nicht relevant, da die Seite nicht als produktiv zu betrachten ist. Die Warnungen sind:
+
+- Re-examine Cache-control Directives ([https://www.zaproxy.org/docs/alerts/10015/](https://www.zaproxy.org/docs/alerts/10015/))
+- X-Content-Type-Options Header Missing ([https://www.zaproxy.org/docs/alerts/10021/](https://www.zaproxy.org/docs/alerts/10021/))
+- Strict-Transport-Security Header Not Set ([https://www.zaproxy.org/docs/alerts/10035/](https://www.zaproxy.org/docs/alerts/10035/))
+- Storable and Cacheable Content ([https://www.zaproxy.org/docs/alerts/10049-3/](https://www.zaproxy.org/docs/alerts/10049-3/))
+
+### Einbinden in Jenkins
+Da der Baseline Scan ohne weitere Abhängigkeiten direkt aus dem ZAP Docker Container aus gestartet werden kann, wird dieser so in die Pipeline übernommen. Das Jenkinsfile wird mit folgenden Step ergänzt:
+```groovy
+ // vulnerability scan with OWASP ZAP
+        stage('vulnerability scan with OWASP ZAP') {
+            agent {
+                docker {
+                    image 'owasp/zap2docker-stable'
+                    args ''
+                }
+            }
+            steps {
+                gitlabCommitStatus(name: 'vulnerability scan with OWASP ZAP') {
+                    sh '''
+                        zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app
+                    '''
+                    }
+                }
+            }
+```
+Auch hier wird analog zum Step mit JMeter der Docker Socket des Hosts mit dem Container geteilt. Der Scan wird mit dem Befehl `zap-baseline.py` gestartet. Dieses Python Script ist Teil des ZAP Docker Containers und muss nicht separat installiert werden. Der Befehl führt den Baseline Scan auf das Ziel durch und gibt das Ergebnis in der Konsole aus. Das Ergebnis ist analog zum manuellen Scan von oben. Die 4 Warnungen führen zu einem Exit Code 2, welcher von Jenkins als Fehler interpretiert wird, damit bricht die Pipeline ab. Dieses Verhalten kann mit dem Parameter `-l` unterdrückt werden. Der Parameter `-l` führt dazu, dass der Exit Code 2 ignoriert wird. Das Jenkinsfile wird mit folgendem Step ergänzt:
+```groovy
+ // vulnerability scan with OWASP ZAP
+        stage('vulnerability scan with OWASP ZAP') {
+            agent {
+                docker {
+                    image 'owasp/zap2docker-stable'
+                    args ''
+                }
+            }
+            steps {
+                gitlabCommitStatus(name: 'vulnerability scan with OWASP ZAP') {
+                    sh '''
+                        zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app -l
+                    '''
+                    }
+                }
+            }
+```
+
+
+
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.
 - Das `performance plugin` steht im Jenkins-GUI nicht zur Verfügung. Das Plugin wird innerhalb des laufenden Jenkins Containers manuell via über den CLI Befehl `jenkins-plugin-cli --plugins performance:3.20` installiert.

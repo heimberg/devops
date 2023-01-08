@@ -108,7 +108,7 @@ pipeline {
             steps {
                 gitlabCommitStatus(name: 'vulnerability scan with OWASP ZAP') {
                     sh '''
-                        zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app
+                        zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app -l FAIL
                     '''
                     }
                 }
