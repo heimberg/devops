@@ -87,7 +87,7 @@ Die JMeter Tests werden als weiterer Step im Jenkinsfile definiert. Dazu wird de
             }
         }
 ```
-Der Befehl `docker run` startet einen Docker Container mit dem Image `justb4/jmeter`. Dieses Image enthält JMeter (Quelle: [github.com/justb4/docker-jmeter](https://github.com/justb4/docker-jmeter)). Der Befehl `--rm` sorgt dafür, dass der Container nach dem Test gelöscht wird. Das Volume `jmeter-data` wird an den Pfad `/mnt/jmeter` gemountet. Der Pfad `/mnt/jmeter` ist der Pfad, an dem JMeter im Container erwartet, dass die Test-Scripts liegen. Der Befehl `-n` sorgt dafür, dass JMeter im Non-GUI Modus läuft. Der Befehl `-t` gibt den Pfad an, an dem die Test-Scripts liegen. Der Befehl `-l` gibt den Pfad an, an dem das Ergebnis des Tests gespeichert werden soll. Der Befehl `-j` gibt den Pfad an, an dem das Log des Tests gespeichert werden soll.
+Der Befehl `docker run` startet einen Docker Container mit dem Image `justb4/jmeter` (auf dem Host, Zugriff über den via docker compose freigegebenen Docker Socket). Dieses Image enthält JMeter (Quelle: [github.com/justb4/docker-jmeter](https://github.com/justb4/docker-jmeter)). Der Befehl `--rm` sorgt dafür, dass der Container nach dem Test gelöscht wird. Das lokale Volume `jmeter-data` wird an den Pfad `/mnt/jmeter` gemountet. Der Pfad `/mnt/jmeter` ist der Pfad, an dem JMeter im Container erwartet, dass die Test-Scripts liegen. Der Befehl `-n` sorgt dafür, dass JMeter im Non-GUI Modus läuft. Der Befehl `-t` gibt den Pfad an, an dem die Test-Scripts liegen. Der Befehl `-l` gibt den Pfad an, an dem das Ergebnis des Tests gespeichert werden soll. Der Befehl `-j` gibt den Pfad an, an dem das Log des Tests gespeichert werden soll.
 
 ### Fehlschlag beim Einbinden des Volumes
 Probleme mit dem Einbinden des Volumes `jemeter-data` vom Host in den JMeter Container, welcher über den Docker Socket des Hosts aus dem Jenkins Container heraus gestartet wird, konnten auch nach mehreren Stunden nicht gelöst werden. Deshalb wurde nach einiger Recherche der folgende Ansatz verfolgt:
@@ -130,7 +130,7 @@ Error: Error response from daemon: Container
 c962a508d1a0b0c9fda3eb71f65228e48a61fac9ce9511907fb0a40561eedc44 
 is not running
 ```
-Obwohl der Container nachweislich gestartet wird (er wird aber kurz nach Start wieder beendet, weshalb Jenkins das Kommando `docker ps` nicht ausführen kann). Auf Grund der zeitlichen Beschränkungen wurde der Ansatz dann nicht mehr weiter verfolgt und der entsprechende Step im Jenkinsfile auskommentiert.
+Obwohl der Container nachweislich gestartet wird (er wird aber kurz nach Start wieder beendet, weshalb Jenkins das Kommando `docker ps` nicht ausführen kann, weshalb Jenkins hier die laufenden Prozesse ausgeben möchte ist mir nicht klar). Auf Grund der zeitlichen Beschränkungen wurde dieser Ansatz dann auch nicht mehr weiter verfolgt und der entsprechende Step im Jenkinsfile auskommentiert. Im Prinzip sollte es aber möglich sein, JMeter in einem Docker Container zu starten und diesen dann über den Docker Socket des Hosts aus dem Jenkins Container heraus zu starten. Das JMeter Script ist lokal auf dem Host lauffähig und testet die API auf Google Cloud erfolgreich (vgl. nächstes Kapitel).
 
 ### JMeter Test-Scripts
 Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und als `.jmx` Dateien exportiert. Dabei wurden die folgenden Tests definiert:
@@ -145,8 +145,9 @@ Die Test Scripts wurden mit einer lokalen Installation von JMeter erstellt und a
 4. `get_new_user`: Holt mittels `GET` den neu erstellten User vom Endpunkt `/api/users/6`
    1. `check_new_user`: Prüft, ob der neu erstellte User existiert indem geprüft wird, ob dieser den Namen `Hans` besitzt
 
+Die Tests können in JMeter mittels `Run` ausgeführt werden. Das Ergebnis sieht wie folgt aus:
 ![](./img/jmeter.png)
-
+Die Tests laufen also erfolgreich durch. Die Auswahl der Testfälle wurde auf Grund der Zeitbeschränkungen auf die oben genannten Tests beschränkt. Abgedeckt werden die wichtigsten Endpunkte der API und die wichtigsten HTTP Methoden. 
 
 ## Probleme und deren Lösung
 - `docker compose` lässt sich nicht starten, da ein Port bereits gelegt ist. Lösung: belegte Ports lassen sich unter Windows mittels des PoweShell-Befehls `Get-Process -Id (Get-NetTCPConnection -LocalPort <PORT>).OwningProcess` herausfinden. Anschliessend kann der entsprechende Prozess beendet werden.

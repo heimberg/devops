@@ -97,6 +97,21 @@ pipeline {
             }
         } */
 
+        // vulnerability scan with OWASP ZAP
+        stage('vulnerability scan with OWASP ZAP') {
+            agent {
+                docker {
+                    image 'owasp/zap2docker-stable'
+                    args 'zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app`
+            }
+            steps {
+                gitlabCommitStatus(name: 'vulnerability scan with OWASP ZAP') {
+                    echo 'vulnerability scan with OWASP ZAP'
+                    }
+                }
+            }
+        }
+
     }
 
     post {
