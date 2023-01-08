@@ -102,7 +102,8 @@ pipeline {
             agent {
                 docker {
                     image 'owasp/zap2docker-stable'
-                    args 'zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app`
+                    args 'zap-baseline.py -t https://devops-d4bqj7s2iq-ez.a.run.app'
+                }
             }
             steps {
                 gitlabCommitStatus(name: 'vulnerability scan with OWASP ZAP') {
